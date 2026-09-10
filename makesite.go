@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gomarkdown/markdown"
 	"html/template"
 	"io/ioutil"
 	"os"
@@ -13,7 +14,7 @@ type Page struct {
 	TextFilePath string
 	TextFileName string
 	HTMLPagePath string
-	Content string
+	Content template.HTML
 }
 
 func main() {
@@ -38,18 +39,21 @@ func main() {
 			continue
 		}
 
-		// Read file contents 
+		// Read file contents
 		fileContents, err := ioutil.ReadFile(filename)
 		if err != nil {
 			panic(err)
 		}
 
-		// Create the page 
+		// Parse the Markdown content into HTML
+		htmlContent := markdown.ToHTML(fileContents, nil, nil)
+
+		// Create the page
 		page := Page{
 			TextFilePath: filename,
 			TextFileName: filename,
 			HTMLPagePath: strings.TrimSuffix(filename, ".txt") + ".html",
-			Content: string(fileContents),
+			Content: template.HTML(htmlContent),
 		}
 
 		// Save a new template to memory by parsing the given template
